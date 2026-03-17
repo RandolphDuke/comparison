@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticketing Platform Fee Calculator</title>
+    <style>
+        :root {
+            --color-bg-base: #0f172a;
+            --color-bg-elevated: #1e293b;
+            --color-bg-surface: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-primary: #38bdf8;
+            --color-success: #22c55e;
+            --color-warning: #f59e0b;
+            --color-border: rgba(203, 213, 225, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg-base);
+            color: var(--color-text-primary);
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-primary);
+        }
+
+        .subtitle {
+            color: var(--color-text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .input-section {
+            background: var(--color-bg-elevated);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .input-groups {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .input-subsection {
+            background: rgba(15, 23, 42, 0.35);
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .input-subsection h4 {
+            color: var(--color-text-primary);
+            margin-bottom: 1rem;
+        }
+
+        .input-subsection p {
+            color: var(--color-text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-secondary);
+        }
+
+        input, select {
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-surface);
+            color: var(--color-text-primary);
+            font-size: 1rem;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .tab {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--color-text-secondary);
+        }
+
+        .tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .platform-card {
+            background: var(--color-bg-elevated);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--color-border);
+        }
+
+        .platform-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--color-text-primary);
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-row-spacer {
+            visibility: hidden;
+        }
+
+        .metric-label {
+            color: var(--color-text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+
+        .metric-row-emphasis {
+            align-items: baseline;
+        }
+
+        .metric-label-emphasis {
+            color: var(--color-text-primary);
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        .metric-value-emphasis {
+            color: var(--color-text-primary);
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .highlight-section {
+            background: var(--color-bg-surface);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+        }
+
+        .highlight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-section h4 {
+            color: var(--color-primary);
+            margin-bottom: 0;
+            font-size: 1.25rem;
+        }
+
+        .highlight-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .highlight-meta {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .fee-savings {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            text-align: right;
+            gap: 0.2rem;
+            color: var(--color-warning);
+        }
+
+        .fee-savings-amount {
+            font-size: 1.25rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .fee-savings-percent {
+            font-size: 1rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .revenue-opportunity {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 1rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--color-border);
+        }
+
+        .revenue-opportunity-label {
+            color: var(--color-text-secondary);
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .revenue-opportunity-value {
+            color: var(--color-success);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .revenue-opportunity-copy {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            text-align: right;
+            gap: 0.2rem;
+        }
+
+        .revenue-opportunity-percent {
+            color: var(--color-success);
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+        }
+
+        .revenue-opportunity-note {
+            color: var(--color-success );
+            font-size: 1.5rem;
+            line-height: 1.2;
+            font-weight: 700; /* bold the target-net note for emphasis */
+            margin-top: 0.5rem;
+        }
+
+        .savings-card {
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 1px solid var(--color-border);
+        }
+
+        .savings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .savings-section-title {
+            margin-top: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-primary);
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: left;
+        }
+
+        .savings-section-title.centered {
+            text-align: center;
+        }
+
+        .savings-metric {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .savings-metric-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .savings-metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .savings-metric-sub {
+            font-size: 0.875rem;
+            opacity: 0.8;
+            margin-top: 0.25rem;
+        }
+
+        .distribution-inputs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .total-display {
+            text-align: right;
+            font-weight: 600;
+            color: var(--color-primary);
+            padding: 0.5rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .distribution-inputs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .savings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ticketing Platform Fee Calculator</h1>
+        <p class="subtitle">Compare Eventbrite vs Custom Platform</p>
+
+        <div class="input-section">
+            <h3 style="margin-bottom: 1.5rem; color: var(--color-primary);">Input Variables</h3>
+            <div class="input-groups">
+                <div class="input-subsection">
+                    <h4>Eventbrite Variables - These defaults are Eventbrite's current fees</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Eventbrite Net to LxT (Per Ticket)</label>
+                            <input type="number" id="eventbriteNetToOrganizer" value="31.06" step="0.01" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Eventbrite Service Fee (%)</label>
+                            <input type="number" id="eventbriteFee" value="3.7" step="0.1" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Eventbrite Per-Ticket Fee ($)</label>
+                            <input type="number" id="eventbritePerTicket" value="1.79" step="0.01" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Eventbrite Processing Fee (%)</label>
+                            <input type="number" id="eventbriteProcessing" value="2.9" step="0.1" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-subsection">
+                    <h4>Custom Platform Variables - Change the net price to see the impact on fees and revenue</h4>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label style="color: var(--color-success);">Our Platform Net to LxT (Per Ticket)</label>
+                            <input type="number" id="platformNetToOrganizer" value="31.06" step="0.01" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Stripe Per Transaction Fee (Fixed $)</label>
+                            <input type="number" id="stripeFixed" value="0.30" step="0.01" min="0" readonly>
+                        </div>
+                        <div class="input-group">
+                            <label>Stripe Checkout Fee (%)</label>
+                            <input type="number" id="stripePercent" value="2.9" step="0.1" min="0" readonly>
+                        </div>
+                        <div class="input-group">
+                            <label>Stripe Tax Fee (%)</label>
+                            <input type="number" id="stripeTax" value="0.5" step="0.1" min="0" readonly>
+                        </div>
+                        <div class="input-group">
+                            <label>Platform Fee (%)</label>
+                            <input type="number" id="platformFee" value="4.6" step="0.1" min="0" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-subsection">
+                    <h4>Shared Assumptions</h4>
+                    <p>These assumptions affect both comparison models.</p>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label>Tickets Sold Per Month</label>
+                            <input type="number" id="ticketsPerMonth" value="3000" step="1" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Sales Tax (%)</label>
+                            <input type="number" id="salesTax" value="12" step="0.1" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label>Sales Tax on Platform Fee?</label>
+                            <select id="taxOnFee">
+                                <option value="yes">YES</option>
+                                <option value="no">NO</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" data-tab="single">1 Ticket Purchase</button>
+            <button class="tab" data-tab="average">Average Quantity</button>
+            <button class="tab" data-tab="blended">Blended Model</button>
+        </div>
+
+        <div id="single" class="tab-content active">
+            <div class="comparison-grid">
+                <div class="platform-card">
+                    <h3>Eventbrite</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Number of Tickets</span>
+                        <span class="metric-value">1</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Net to LxT</span>
+                        <span class="metric-value" id="eb-single-net-input">$35.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Service Fee</span>
+                        <span class="metric-value" id="eb-single-platform">$5.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Sales Tax</span>
+                        <span class="metric-value" id="eb-single-tax">$0.00</span>
+                    </div>
+                    <div class="metric-row metric-row-spacer" aria-hidden="true">
+                        <span class="metric-label">Spacer</span>
+                        <span class="metric-value">$0.00</span>
+                    </div>
+                    <div class="metric-row metric-row-emphasis">
+                        <span class="metric-label metric-label-emphasis">Cost to Consumer</span>
+                        <span class="metric-value metric-value-emphasis" id="eb-single-total">$39.99</span>
+                    </div>
+                    <div class="highlight-section">
+                        <div class="highlight-header">
+                            <h4>Total Fees</h4>
+                            <div class="highlight-value" id="eb-single-total-fees">$4.99</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3 style="color: var(--color-primary);">Custom Platform</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Number of Tickets</span>
+                        <span class="metric-value">1</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label" style="color: var(--color-success);">Net to LxT</span>
+                        <span class="metric-value" style="color: var(--color-success);" id="yp-single-net-input">$35.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Platform Fee</span>
+                        <span class="metric-value" id="yp-single-platform">$1.84</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Sales Tax</span>
+                        <span class="metric-value" id="yp-single-tax">$0.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Stripe Fees</span>
+                        <span class="metric-value" id="yp-single-stripe">$1.72</span>
+                    </div>
+                    <div class="metric-row metric-row-emphasis">
+                        <span class="metric-label metric-label-emphasis">Cost to Consumer</span>
+                        <span class="metric-value metric-value-emphasis" id="yp-single-total">$39.99</span>
+                    </div>
+                    <div class="highlight-section">
+                        <div class="highlight-header">
+                            <h4>Total Fees</h4>
+                            <div class="highlight-value" id="yp-single-total-fees">$3.99</div>
+                        </div>
+                        <div class="highlight-meta fee-savings" id="yp-single-diff">-$1.00 (25.0% less)</div>
+                        <div class="revenue-opportunity">
+                            <span class="revenue-opportunity-label">Revenue Increase Opportunity</span>
+                            <span class="revenue-opportunity-copy">
+                                <span class="revenue-opportunity-value" id="yp-single-revenue-opportunity">+$0.00 per transaction</span>
+                                <span class="revenue-opportunity-percent" id="yp-single-revenue-per-ticket">+$0.00 per ticket</span>    
+                                <span class="revenue-opportunity-note" id="yp-single-target-net-ticket">Set Net to $0.00</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+
+        <div id="average" class="tab-content">
+            <div class="input-section">
+                <div class="input-group" style="max-width: 300px;">
+                    <label>Average Tickets per Transaction</label>
+                    <input type="number" id="avgTickets" value="2" step="1" min="1">
+                </div>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="platform-card">
+                    <h3>Eventbrite</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Number of Tickets</span>
+                        <span class="metric-value" id="eb-avg-qty">2</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Net to LxT</span>
+                        <span class="metric-value" id="eb-avg-net-input">$70.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Service Fee</span>
+                        <span class="metric-value" id="eb-avg-platform">$10.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Sales Tax</span>
+                        <span class="metric-value" id="eb-avg-tax">$0.00</span>
+                    </div>
+                    <div class="metric-row metric-row-spacer" aria-hidden="true">
+                        <span class="metric-label">Spacer</span>
+                        <span class="metric-value" id="eb-avg-stripe">$0.00</span>
+                    </div>
+                    <div class="metric-row metric-row-emphasis">
+                        <span class="metric-label metric-label-emphasis">Cost to Consumer</span>
+                        <span class="metric-value metric-value-emphasis" id="eb-avg-total">$79.98</span>
+                    </div>
+                    <div class="highlight-section">
+                        <div class="highlight-header">
+                            <h4>Total Fees</h4>
+                            <div class="highlight-value" id="eb-avg-total-fees">$9.98</div>
+                        </div>
+                        <div class="highlight-meta" id="eb-avg-per-ticket">$4.99 per ticket</div>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3 style="color: var(--color-primary);">Custom Platform</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Number of Tickets</span>
+                        <span class="metric-value" id="yp-avg-qty">2</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label" style="color: var(--color-success);">Net to LxT</span>
+                        <span class="metric-value" style="color: var(--color-success);"id="yp-avg-net-input">$70.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Platform Fee</span>
+                        <span class="metric-value" id="yp-avg-platform">$3.68</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Sales Tax</span>
+                        <span class="metric-value" id="yp-avg-tax">$0.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Stripe Fees</span>
+                        <span class="metric-value" id="yp-avg-stripe">$3.15</span>
+                    </div>
+                    <div class="metric-row metric-row-emphasis">
+                        <span class="metric-label metric-label-emphasis">Cost to Consumer</span>
+                        <span class="metric-value metric-value-emphasis" id="yp-avg-total">$79.98</span>
+                    </div>
+                    <div class="highlight-section">
+                        <div class="highlight-header">
+                            <h4>Total Fees</h4>
+                            <div class="highlight-value" id="yp-avg-total-fees">$7.98</div>
+                        </div>
+                        <div class="highlight-meta" id="yp-avg-per-ticket">$3.99 per ticket</div>
+                        <div class="highlight-meta fee-savings" id="yp-avg-diff">-$2.00 (25.0% less)</div>
+                        <div class="revenue-opportunity">
+                            <span class="revenue-opportunity-label">Revenue Increase Opportunity</span>
+                            <span class="revenue-opportunity-copy">
+                                <span class="revenue-opportunity-value" id="yp-avg-revenue-opportunity">+$0.00 per transaction</span>
+                                <span class="revenue-opportunity-percent" id="yp-avg-revenue-per-ticket">+$0.00 per ticket</span>
+                                <span class="revenue-opportunity-note" id="yp-avg-target-net-ticket">Set Net to $0.00</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="blended" class="tab-content">
+            <div class="input-section">
+                <h4 style="margin-bottom: 1rem; color: var(--color-text-secondary);">Purchase Distribution</h4>
+                <div class="distribution-inputs">
+                    <div class="input-group">
+                        <label>1 Ticket Purchases (%)</label>
+                        <input type="number" id="dist1" value="25" step="1" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label>2 Ticket Purchases (%)</label>
+                        <input type="number" id="dist2" value="60" step="1" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label>3 Ticket Purchases (%)</label>
+                        <input type="number" id="dist3" value="10" step="1" min="0" max="100">
+                    </div>
+                    <div class="input-group">
+                        <label>4 Ticket Purchases (%)</label>
+                        <input type="number" id="dist4" value="5" step="1" min="0" max="100">
+                    </div>
+                </div>
+                <div class="total-display">Total: <span id="distTotal">100</span>%</div>
+            </div>
+
+            <div class="comparison-grid">
+                <div class="platform-card">
+                    <h3>Eventbrite - Weighted Average</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Tickets per Transaction</span>
+                        <span class="metric-value" id="eb-blend-avg-qty">1.95</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Net to LxT</span>
+                        <span class="metric-value" id="eb-blend-net-input">$60.57</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Service Fee</span>
+                        <span class="metric-value" id="eb-blend-platform">$9.75</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Sales Tax</span>
+                        <span class="metric-value" id="eb-blend-tax">$0.00</span>
+                    </div>
+                    <div class="metric-row metric-row-spacer" aria-hidden="true">
+                        <span class="metric-label">Spacer</span>
+                        <span class="metric-value" id="eb-blend-stripe">$3.27</span>
+                    </div>
+                    <div class="metric-row metric-row-emphasis">
+                        <span class="metric-label metric-label-emphasis">Avg Cost to Consumer</span>
+                        <span class="metric-value metric-value-emphasis" id="eb-blend-total">$77.93</span>
+                    </div>
+                    <div class="highlight-section">
+                        <div class="highlight-header">
+                            <h4>Avg Total Fees</h4>
+                            <div class="highlight-value" id="eb-blend-total-fees">$9.74</div>
+                        </div>
+                        <div class="highlight-meta" id="eb-blend-per-ticket">$4.99 per ticket</div>
+                    </div>
+                </div>
+
+                <div class="platform-card">
+                    <h3 style="color: var(--color-primary);">Custom Platform - Weighted Average</h3>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Tickets per Transaction</span>
+                        <span class="metric-value" id="yp-blend-avg-qty">1.95</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label"style="color: var(--color-success);">Avg Net to LxT</span>
+                        <span class="metric-value" style="color: var(--color-success);"id="yp-blend-net-input">$60.57</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Platform Fee</span>
+                        <span class="metric-value" id="yp-blend-platform">$3.59</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Sales Tax</span>
+                        <span class="metric-value" id="yp-blend-tax">$0.00</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">Avg Stripe Fees</span>
+                        <span class="metric-value" id="yp-blend-stripe">$3.06</span>
+                    </div>
+                    <div class="metric-row metric-row-emphasis">
+                        <span class="metric-label metric-label-emphasis">Avg Cost to Consumer</span>
+                        <span class="metric-value metric-value-emphasis" id="yp-blend-total">$77.93</span>
+                    </div>
+                    <div class="highlight-section">
+                        <div class="highlight-header">
+                            <h4>Avg Total Fees</h4>
+                            <div class="highlight-value" id="yp-blend-total-fees">$7.79</div>
+                        </div>
+                        <div class="highlight-meta" id="yp-blend-per-ticket">$3.99 per ticket</div>
+                        <div class="highlight-meta fee-savings" id="yp-blend-diff">-$1.95 per transaction</div>
+                        <div class="revenue-opportunity">
+                            <span class="revenue-opportunity-label">Revenue Increase Opportunity</span>
+                            <span class="revenue-opportunity-copy">
+                                <span class="revenue-opportunity-value" id="yp-blend-revenue-opportunity">+$0.00 per transaction</span>
+                                <span class="revenue-opportunity-percent" id="yp-blend-revenue-per-ticket">+$0.00 per ticket</span>
+                                <span class="revenue-opportunity-note" id="yp-blend-target-net-ticket">Set Net to $0.00</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="savings-card">
+            <h2 style="margin-bottom: 0.5rem;">Reduced Fees allow...</h2>
+            <div class="savings-grid">
+                <div class="savings-metric">
+                    <div class="savings-metric-label" id="savings-per-transaction-label">Per Transaction Savings (1 Ticket Purchase)</div>
+                    <div class="savings-metric-value" id="savings-per-ticket">$3.26</div>
+                </div>
+                <div class="savings-metric">
+                    <div class="savings-metric-label">Monthly Savings</div>
+                    <div class="savings-metric-value" id="savings-monthly">$9,780</div>
+                    <div class="savings-metric-sub" id="savings-monthly-transactions">3,000 transactions/month</div>
+                </div>
+                <div class="savings-metric">
+                    <div class="savings-metric-label">Annual Savings</div>
+                    <div class="savings-metric-value" id="savings-annual">$117,360</div>
+                    <div class="savings-metric-sub" id="savings-annual-tickets">36,000 transactions/year</div>
+                </div>
+            </div>
+
+            <h2 class="savings-section-title centered">...Top Line Revenue Improvements at Same Cost to Attendees</h2>
+            <div class="savings-grid">
+                <div class="savings-metric">
+                    <div class="savings-metric-label" id="savings-revenue-per-transaction-label">Per Transaction Revenue Increase (1 Ticket Purchase)</div>
+                    <div class="savings-metric-value" id="savings-revenue-opportunity">$0.00</div>
+                </div>
+                <div class="savings-metric">
+                    <div class="savings-metric-label">Increased Monthly Revenue</div>
+                    <div class="savings-metric-value" id="savings-monthly-revenue-opportunity">$0.00</div>
+                    <div class="savings-metric-sub" id="savings-monthly-revenue-transactions">3,000 transactions/month</div>
+                </div>
+                <div class="savings-metric">
+                    <div class="savings-metric-label">Increased Annual Revenue</div>
+                    <div class="savings-metric-value" id="savings-annual-revenue-opportunity">$0.00</div>
+                    <div class="savings-metric-sub" id="savings-annual-revenue-transactions">36,000 transactions/year</div>
+                </div>
+            </div>
+
+            <p style="opacity: 0.9; text-align: center; margin-top: 1.5rem;">Based on <span id="savings-tickets-display">3,000</span> tickets sold per month</p>
+        </div>
+    </div>
+
+     <script>
+        const inputs = {
+            eventbriteNetToOrganizer: document.getElementById('eventbriteNetToOrganizer'),
+            platformNetToOrganizer: document.getElementById('platformNetToOrganizer'),
+            ticketsPerMonth: document.getElementById('ticketsPerMonth'),
+            stripeFixed: document.getElementById('stripeFixed'),
+            stripePercent: document.getElementById('stripePercent'),
+            stripeTax: document.getElementById('stripeTax'),
+            platformFee: document.getElementById('platformFee'),
+            eventbriteFee: document.getElementById('eventbriteFee'),
+            eventbritePerTicket: document.getElementById('eventbritePerTicket'),
+            eventbriteProcessing: document.getElementById('eventbriteProcessing'),
+            salesTax: document.getElementById('salesTax'),
+            taxOnFee: document.getElementById('taxOnFee'),
+            avgTickets: document.getElementById('avgTickets'),
+            dist1: document.getElementById('dist1'),
+            dist2: document.getElementById('dist2'),
+            dist3: document.getElementById('dist3'),
+            dist4: document.getElementById('dist4')
+        };
+
+        function calculateEventbriteFees(netToOrganizer, numTickets, serviceFeePercent, perTicketFee, processingFeePercent, salesTaxPercent, taxOnFees) {
+            const subtotal = roundToCents(netToOrganizer * numTickets);
+
+            const fixedFeePerTicket = perTicketFee;
+            const serviceRate = serviceFeePercent / 100;
+            const processingRate = processingFeePercent / 100;
+
+            const serviceFee = roundToCents((subtotal * serviceRate) + (fixedFeePerTicket * numTickets));
+            const processingFeeBase = roundToCents(subtotal + serviceFee);
+            const processingFee = roundToCents(processingFeeBase * processingRate);
+            const totalFees = roundToCents(serviceFee + processingFee);
+
+            const preTaxTotal = roundToCents(subtotal + totalFees);
+            const taxableBase = taxOnFees ? preTaxTotal : subtotal;
+            const salesTax = roundToCents(taxableBase * (salesTaxPercent / 100));
+            const totalConsumerPays = roundToCents(preTaxTotal + salesTax);
+
+            return {
+                netToOrganizer: subtotal,
+                platformFee: totalFees,
+                salesTax,
+                processingFee,
+                totalStripeFees: processingFee,
+                totalFees,
+                totalConsumerPays
+            };
+        }
+
+        function calculateYourPlatformFees(netToOrganizer, numTickets, platformFeePercent, salesTaxPercent, stripeFixedFee, stripePercentFee, stripeTaxFee, taxOnPlatformFee) {
+            const netTotal = roundToCents(netToOrganizer * numTickets);
+
+            const platformFee = roundToCents(netTotal * (platformFeePercent / 100));
+            const subtotalAfterPlatform = roundToCents(netTotal + platformFee);
+
+            const baseForSalesTax = taxOnPlatformFee ? subtotalAfterPlatform : netTotal;
+            const salesTax = roundToCents(baseForSalesTax * (salesTaxPercent / 100));
+            const subtotalAfterTax = roundToCents(subtotalAfterPlatform + salesTax);
+
+            const subtotalAfterFixed = roundToCents(subtotalAfterTax + stripeFixedFee);
+
+            const combinedStripePercentRate = (stripePercentFee + stripeTaxFee) / 100;
+            const totalConsumerPays = roundToCents(subtotalAfterFixed / (1 - combinedStripePercentRate));
+
+            const stripeCheckoutFee = roundToCents(totalConsumerPays * (stripePercentFee / 100));
+            const stripeTaxFeeAmount = roundToCents(totalConsumerPays * (stripeTaxFee / 100));
+            const totalStripeFees = roundToCents(stripeFixedFee + stripeCheckoutFee + stripeTaxFeeAmount);
+
+            const totalFees = roundToCents(platformFee + totalStripeFees);
+
+            return {
+                netToOrganizer: netTotal,
+                platformFee,
+                salesTax,
+                stripeCheckoutFee,
+                stripeTaxFeeAmount,
+                totalStripeFees,
+                totalConsumerPays,
+                totalFees
+            };
+        }
+
+        /**
+         * Calculates the maximum organizer net total your platform can support while
+         * keeping the buyer checkout total fixed at a target amount.
+         *
+         * This reverses the forward pricing formula used by `calculateYourPlatformFees`.
+         *
+         * @param {number} targetConsumerPays Buyer total to match.
+         * @param {number} platformFeePercent Platform fee percent.
+         * @param {number} salesTaxPercent Sales tax percent.
+         * @param {number} stripeFixedFee Fixed Stripe fee per transaction.
+         * @param {number} stripePercentFee Stripe checkout fee percent.
+         * @param {number} stripeTaxFee Stripe tax fee percent.
+         * @param {boolean} taxOnPlatformFee Indicates whether sales tax applies to the platform fee.
+         * @returns {number} Maximum organizer net total for the transaction at the target buyer total.
+         */
+        function calculateMaxPlatformNetAtConsumerPrice(
+            targetConsumerPays,
+            platformFeePercent,
+            salesTaxPercent,
+            stripeFixedFee,
+            stripePercentFee,
+            stripeTaxFee,
+            taxOnPlatformFee
+        ) {
+            const platformFeeRate = platformFeePercent / 100;
+            const salesTaxRate = salesTaxPercent / 100;
+            const combinedStripePercentRate = (stripePercentFee + stripeTaxFee) / 100;
+
+            // Reverse the checkout build-up so buyer-price headroom becomes organizer net headroom.
+            const targetBeforeStripePercent = (targetConsumerPays * (1 - combinedStripePercentRate)) - stripeFixedFee;
+
+            if (targetBeforeStripePercent <= 0) {
+                return 0;
+            }
+
+            const denominator = taxOnPlatformFee
+                ? (1 + platformFeeRate) * (1 + salesTaxRate)
+                : (1 + platformFeeRate + salesTaxRate);
+
+            return roundToCents(targetBeforeStripePercent / denominator);
+        }
+
+        /**
+         * Calculates the organizer revenue increase available on your platform when
+         * matching Eventbrite's buyer checkout total.
+         *
+         * @param {number} targetConsumerPays Eventbrite buyer total for the transaction.
+         * @param {number} currentPlatformNetTotal Current organizer net total on your platform for the same transaction.
+         * @param {number} platformFeePercent Platform fee percent.
+         * @param {number} salesTaxPercent Sales tax percent.
+         * @param {number} stripeFixedFee Fixed Stripe fee per transaction.
+         * @param {number} stripePercentFee Stripe checkout fee percent.
+         * @param {number} stripeTaxFee Stripe tax fee percent.
+         * @param {boolean} taxOnPlatformFee Indicates whether sales tax applies to the platform fee.
+         * @returns {{ targetNetToOrganizer: number, revenueIncrease: number }} The matched net total and the incremental organizer revenue.
+         */
+        function calculateRevenueHeadroom(
+            targetConsumerPays,
+            currentPlatformNetTotal,
+            platformFeePercent,
+            salesTaxPercent,
+            stripeFixedFee,
+            stripePercentFee,
+            stripeTaxFee,
+            taxOnPlatformFee
+        ) {
+            const targetNetToOrganizer = calculateMaxPlatformNetAtConsumerPrice(
+                targetConsumerPays,
+                platformFeePercent,
+                salesTaxPercent,
+                stripeFixedFee,
+                stripePercentFee,
+                stripeTaxFee,
+                taxOnPlatformFee
+            );
+
+            return {
+                targetNetToOrganizer,
+                revenueIncrease: roundToCents(Math.max(0, targetNetToOrganizer - currentPlatformNetTotal))
+            };
+        }
+
+        function calculateRevenueIncreasePercent(revenueIncrease, currentPlatformNetTotal) {
+            if (currentPlatformNetTotal <= 0) {
+                return 0;
+            }
+
+            return (revenueIncrease / currentPlatformNetTotal) * 100;
+        }
+
+        function roundToCents(value) {
+            return Math.round((value + Number.EPSILON) * 100) / 100;
+        }
+
+        function formatCurrency(value) {
+            return '$' + value.toFixed(2);
+        }
+
+        function formatPreciseCurrency(value, maximumFractionDigits = 6) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits
+            }).format(value);
+        }
+
+        function formatPreciseNumber(value, maximumFractionDigits = 6) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits
+            }).format(value);
+        }
+
+        function formatCurrencyWithCommas(value) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        }
+
+        function updateRevenueOpportunityDisplay(config) {
+            const { valueId, perTicketId, targetNetId, perTransactionIncrease, averageTicketsPerTransaction, targetNetToOrganizer } = config;
+            const perTicketIncrease = averageTicketsPerTransaction === 0 ? 0 : perTransactionIncrease / averageTicketsPerTransaction;
+            const targetNetPerTicket = averageTicketsPerTransaction === 0 ? 0 : targetNetToOrganizer / averageTicketsPerTransaction;
+
+            document.getElementById(valueId).textContent = `+${formatPreciseCurrency(perTransactionIncrease)} per transaction`;
+            document.getElementById(perTicketId).textContent = `+${formatPreciseCurrency(perTicketIncrease)} per ticket`;
+            document.getElementById(targetNetId).textContent = `Set Net to ${formatPreciseCurrency(targetNetPerTicket)}`;
+        }
+
+        function updateFeeSavingsDisplay(elementId, diff, pct, detailLabel = 'less') {
+            document.getElementById(elementId).innerHTML = `
+                <span class="fee-savings-amount">-${formatPreciseCurrency(diff)}</span>
+                <span class="fee-savings-percent">${pct.toFixed(1)}% ${detailLabel}</span>
+            `;
+        }
+
+        function updateSingleTicket() {
+            const ebNetOrg = parseFloat(inputs.eventbriteNetToOrganizer.value);
+            const ypNetOrg = parseFloat(inputs.platformNetToOrganizer.value);
+            const salesTaxPercent = parseFloat(inputs.salesTax.value);
+            const taxOnFee = inputs.taxOnFee.value === 'yes';
+            const eventbriteFeePercent = parseFloat(inputs.eventbriteFee.value);
+            const eventbritePerTicketFee = parseFloat(inputs.eventbritePerTicket.value);
+            const eventbriteProcessingPercent = parseFloat(inputs.eventbriteProcessing.value);
+            const platformFeePercent = parseFloat(inputs.platformFee.value);
+            const stripeFixedFee = parseFloat(inputs.stripeFixed.value);
+            const stripePercentFee = parseFloat(inputs.stripePercent.value);
+            const stripeTaxFee = parseFloat(inputs.stripeTax.value);
+
+            const eb = calculateEventbriteFees(
+                ebNetOrg,
+                1,
+                eventbriteFeePercent,
+                eventbritePerTicketFee,
+                eventbriteProcessingPercent,
+                salesTaxPercent,
+                taxOnFee
+            );
+            const yp = calculateYourPlatformFees(
+                ypNetOrg,
+                1,
+                platformFeePercent,
+                salesTaxPercent,
+                stripeFixedFee,
+                stripePercentFee,
+                stripeTaxFee,
+                taxOnFee
+            );
+
+            document.getElementById('eb-single-net-input').textContent = formatCurrency(eb.netToOrganizer);
+            document.getElementById('eb-single-total').textContent = formatCurrency(eb.totalConsumerPays);
+            document.getElementById('eb-single-platform').textContent = formatCurrency(eb.platformFee);
+            document.getElementById('eb-single-tax').textContent = formatCurrency(eb.salesTax);
+            document.getElementById('eb-single-total-fees').textContent = formatCurrency(eb.totalFees);
+
+            document.getElementById('yp-single-net-input').textContent = formatCurrency(yp.netToOrganizer);
+            document.getElementById('yp-single-total').textContent = formatCurrency(yp.totalConsumerPays);
+            document.getElementById('yp-single-platform').textContent = formatCurrency(yp.platformFee);
+            document.getElementById('yp-single-tax').textContent = formatCurrency(yp.salesTax);
+            document.getElementById('yp-single-stripe').textContent = formatCurrency(yp.totalStripeFees);
+            document.getElementById('yp-single-total-fees').textContent = formatCurrency(yp.totalFees);
+
+            const diff = eb.totalFees - yp.totalFees;
+            const pct = diff / eb.totalFees * 100;
+            const revenueHeadroom = calculateRevenueHeadroom(
+                eb.totalConsumerPays,
+                yp.netToOrganizer,
+                platformFeePercent,
+                salesTaxPercent,
+                stripeFixedFee,
+                stripePercentFee,
+                stripeTaxFee,
+                taxOnFee
+            );
+            const increasedRevenuePossibility = revenueHeadroom.revenueIncrease;
+
+            updateFeeSavingsDisplay('yp-single-diff', diff, pct);
+            updateRevenueOpportunityDisplay({
+                valueId: 'yp-single-revenue-opportunity',
+                perTicketId: 'yp-single-revenue-per-ticket',
+                targetNetId: 'yp-single-target-net-ticket',
+                perTransactionIncrease: increasedRevenuePossibility,
+                averageTicketsPerTransaction: 1,
+                targetNetToOrganizer: revenueHeadroom.targetNetToOrganizer
+            });
+
+            return {
+                perTransactionSavings: diff,
+                revenueIncreasePerTransaction: increasedRevenuePossibility,
+                ebNetToOrganizer: eb.netToOrganizer,
+                currentPlatformNetToOrganizer: yp.netToOrganizer,
+                targetNetToOrganizer: revenueHeadroom.targetNetToOrganizer,
+                ebFeesPerTransaction: eb.totalFees,
+                ypFeesPerTransaction: yp.totalFees,
+                ebConsumerPays: eb.totalConsumerPays,
+                ypConsumerPays: yp.totalConsumerPays,
+                averageTicketsPerTransaction: 1
+            };
+        }
+
+        function updateAverageTicket() {
+            const ebNetOrg = parseFloat(inputs.eventbriteNetToOrganizer.value);
+            const ypNetOrg = parseFloat(inputs.platformNetToOrganizer.value);
+            const qty = parseInt(inputs.avgTickets.value);
+            const salesTaxPercent = parseFloat(inputs.salesTax.value);
+            const taxOnFee = inputs.taxOnFee.value === 'yes';
+            const eventbriteFeePercent = parseFloat(inputs.eventbriteFee.value);
+            const eventbritePerTicketFee = parseFloat(inputs.eventbritePerTicket.value);
+            const eventbriteProcessingPercent = parseFloat(inputs.eventbriteProcessing.value);
+            const platformFeePercent = parseFloat(inputs.platformFee.value);
+            const stripeFixedFee = parseFloat(inputs.stripeFixed.value);
+            const stripePercentFee = parseFloat(inputs.stripePercent.value);
+            const stripeTaxFee = parseFloat(inputs.stripeTax.value);
+
+            const eb = calculateEventbriteFees(
+                ebNetOrg,
+                qty,
+                eventbriteFeePercent,
+                eventbritePerTicketFee,
+                eventbriteProcessingPercent,
+                salesTaxPercent,
+                taxOnFee
+            );
+            const yp = calculateYourPlatformFees(
+                ypNetOrg,
+                qty,
+                platformFeePercent,
+                salesTaxPercent,
+                stripeFixedFee,
+                stripePercentFee,
+                stripeTaxFee,
+                taxOnFee
+            );
+
+            document.getElementById('eb-avg-qty').textContent = qty;
+            document.getElementById('eb-avg-net-input').textContent = formatCurrency(ebNetOrg * qty);
+            document.getElementById('eb-avg-total').textContent = formatCurrency(eb.totalConsumerPays);
+            document.getElementById('eb-avg-platform').textContent = formatCurrency(eb.platformFee);
+            document.getElementById('eb-avg-tax').textContent = formatCurrency(eb.salesTax);
+            document.getElementById('eb-avg-stripe').textContent = formatCurrency(eb.totalStripeFees);
+            document.getElementById('eb-avg-total-fees').textContent = formatCurrency(eb.totalFees);
+            document.getElementById('eb-avg-per-ticket').textContent = formatCurrency(eb.totalFees / qty) + ' per ticket';
+
+            document.getElementById('yp-avg-qty').textContent = qty;
+            document.getElementById('yp-avg-net-input').textContent = formatCurrency(ypNetOrg * qty);
+            document.getElementById('yp-avg-total').textContent = formatCurrency(yp.totalConsumerPays);
+            document.getElementById('yp-avg-platform').textContent = formatCurrency(yp.platformFee);
+            document.getElementById('yp-avg-tax').textContent = formatCurrency(yp.salesTax);
+            document.getElementById('yp-avg-stripe').textContent = formatCurrency(yp.totalStripeFees);
+            document.getElementById('yp-avg-total-fees').textContent = formatCurrency(yp.totalFees);
+            document.getElementById('yp-avg-per-ticket').textContent = formatCurrency(yp.totalFees / qty) + ' per ticket';
+
+            const diff = eb.totalFees - yp.totalFees;
+            const pct = diff / eb.totalFees * 100;
+            const revenueHeadroom = calculateRevenueHeadroom(
+                eb.totalConsumerPays,
+                yp.netToOrganizer,
+                platformFeePercent,
+                salesTaxPercent,
+                stripeFixedFee,
+                stripePercentFee,
+                stripeTaxFee,
+                taxOnFee
+            );
+            const increasedRevenuePossibility = revenueHeadroom.revenueIncrease;
+
+            updateFeeSavingsDisplay('yp-avg-diff', diff, pct);
+            updateRevenueOpportunityDisplay({
+                valueId: 'yp-avg-revenue-opportunity',
+                perTicketId: 'yp-avg-revenue-per-ticket',
+                targetNetId: 'yp-avg-target-net-ticket',
+                perTransactionIncrease: increasedRevenuePossibility,
+                averageTicketsPerTransaction: qty,
+                targetNetToOrganizer: revenueHeadroom.targetNetToOrganizer
+            });
+
+            return {
+                perTransactionSavings: diff,
+                revenueIncreasePerTransaction: increasedRevenuePossibility,
+                ebNetToOrganizer: eb.netToOrganizer,
+                currentPlatformNetToOrganizer: yp.netToOrganizer,
+                targetNetToOrganizer: revenueHeadroom.targetNetToOrganizer,
+                ebFeesPerTransaction: eb.totalFees,
+                ypFeesPerTransaction: yp.totalFees,
+                ebConsumerPays: eb.totalConsumerPays,
+                ypConsumerPays: yp.totalConsumerPays,
+                averageTicketsPerTransaction: qty
+            };
+        }
+
+        function updateBlended() {
+            const ebNetOrg = parseFloat(inputs.eventbriteNetToOrganizer.value);
+            const ypNetOrg = parseFloat(inputs.platformNetToOrganizer.value);
+            const salesTaxPercent = parseFloat(inputs.salesTax.value);
+            const taxOnFee = inputs.taxOnFee.value === 'yes';
+            const eventbriteFeePercent = parseFloat(inputs.eventbriteFee.value);
+            const eventbritePerTicketFee = parseFloat(inputs.eventbritePerTicket.value);
+            const eventbriteProcessingPercent = parseFloat(inputs.eventbriteProcessing.value);
+            const platformFeePercent = parseFloat(inputs.platformFee.value);
+            const stripeFixedFee = parseFloat(inputs.stripeFixed.value);
+            const stripePercentFee = parseFloat(inputs.stripePercent.value);
+            const stripeTaxFee = parseFloat(inputs.stripeTax.value);
+            const dist = [
+                parseFloat(inputs.dist1.value) / 100,
+                parseFloat(inputs.dist2.value) / 100,
+                parseFloat(inputs.dist3.value) / 100,
+                parseFloat(inputs.dist4.value) / 100
+            ];
+
+            const total = (dist[0] + dist[1] + dist[2] + dist[3]) * 100;
+            document.getElementById('distTotal').textContent = total.toFixed(0);
+
+            let ebWeighted = { netToOrganizer: 0, platformFee: 0, salesTax: 0, totalStripeFees: 0, totalConsumerPays: 0, totalFees: 0, avgQty: 0 };
+            let ypWeighted = { netToOrganizer: 0, platformFee: 0, salesTax: 0, totalStripeFees: 0, totalConsumerPays: 0, totalFees: 0, avgQty: 0 };
+
+            for (let i = 0; i < 4; i++) {
+                const qty = i + 1;
+                const weight = dist[i];
+
+                const eb = calculateEventbriteFees(
+                    ebNetOrg,
+                    qty,
+                    eventbriteFeePercent,
+                    eventbritePerTicketFee,
+                    eventbriteProcessingPercent,
+                    salesTaxPercent,
+                    taxOnFee
+                );
+                const yp = calculateYourPlatformFees(
+                    ypNetOrg,
+                    qty,
+                    platformFeePercent,
+                    salesTaxPercent,
+                    stripeFixedFee,
+                    stripePercentFee,
+                    stripeTaxFee,
+                    taxOnFee
+                );
+
+                ebWeighted.netToOrganizer += eb.netToOrganizer * weight;
+                ebWeighted.platformFee += eb.platformFee * weight;
+                ebWeighted.salesTax += eb.salesTax * weight;
+                ebWeighted.totalStripeFees += eb.totalStripeFees * weight;
+                ebWeighted.totalConsumerPays += eb.totalConsumerPays * weight;
+                ebWeighted.totalFees += eb.totalFees * weight;
+                ebWeighted.avgQty += qty * weight;
+
+                ypWeighted.netToOrganizer += yp.netToOrganizer * weight;
+                ypWeighted.platformFee += yp.platformFee * weight;
+                ypWeighted.salesTax += yp.salesTax * weight;
+                ypWeighted.totalStripeFees += yp.totalStripeFees * weight;
+                ypWeighted.totalConsumerPays += yp.totalConsumerPays * weight;
+                ypWeighted.totalFees += yp.totalFees * weight;
+                ypWeighted.avgQty += qty * weight;
+            }
+
+            document.getElementById('eb-blend-avg-qty').textContent = formatPreciseNumber(ebWeighted.avgQty);
+            document.getElementById('eb-blend-net-input').textContent = formatCurrency(ebWeighted.netToOrganizer);
+            document.getElementById('eb-blend-total').textContent = formatCurrency(ebWeighted.totalConsumerPays);
+            document.getElementById('eb-blend-platform').textContent = formatCurrency(ebWeighted.platformFee);
+            document.getElementById('eb-blend-tax').textContent = formatCurrency(ebWeighted.salesTax);
+            document.getElementById('eb-blend-stripe').textContent = formatCurrency(ebWeighted.totalStripeFees);
+            document.getElementById('eb-blend-total-fees').textContent = formatCurrency(ebWeighted.totalFees);
+            document.getElementById('eb-blend-per-ticket').textContent = formatCurrency(ebWeighted.totalFees / ebWeighted.avgQty) + ' per ticket';
+
+            document.getElementById('yp-blend-avg-qty').textContent = formatPreciseNumber(ypWeighted.avgQty);
+            document.getElementById('yp-blend-net-input').textContent = formatCurrency(ypWeighted.netToOrganizer);
+            document.getElementById('yp-blend-total').textContent = formatCurrency(ypWeighted.totalConsumerPays);
+            document.getElementById('yp-blend-platform').textContent = formatCurrency(ypWeighted.platformFee);
+            document.getElementById('yp-blend-tax').textContent = formatCurrency(ypWeighted.salesTax);
+            document.getElementById('yp-blend-stripe').textContent = formatCurrency(ypWeighted.totalStripeFees);
+            document.getElementById('yp-blend-total-fees').textContent = formatCurrency(ypWeighted.totalFees);
+            document.getElementById('yp-blend-per-ticket').textContent = formatCurrency(ypWeighted.totalFees / ypWeighted.avgQty) + ' per ticket';
+
+            const diff = ebWeighted.totalFees - ypWeighted.totalFees;
+            const pct = diff / ebWeighted.totalFees * 100;
+
+            // With the current formulas, using weighted transaction totals here remains exact.
+            const revenueHeadroom = calculateRevenueHeadroom(
+                ebWeighted.totalConsumerPays,
+                ypWeighted.netToOrganizer,
+                platformFeePercent,
+                salesTaxPercent,
+                stripeFixedFee,
+                stripePercentFee,
+                stripeTaxFee,
+                taxOnFee
+            );
+            const increasedRevenuePossibility = revenueHeadroom.revenueIncrease;
+
+            updateFeeSavingsDisplay('yp-blend-diff', diff, pct, 'less');
+            updateRevenueOpportunityDisplay({
+                valueId: 'yp-blend-revenue-opportunity',
+                perTicketId: 'yp-blend-revenue-per-ticket',
+                targetNetId: 'yp-blend-target-net-ticket',
+                perTransactionIncrease: increasedRevenuePossibility,
+                averageTicketsPerTransaction: ypWeighted.avgQty,
+                targetNetToOrganizer: revenueHeadroom.targetNetToOrganizer
+            });
+
+            return {
+                perTransactionSavings: diff,
+                revenueIncreasePerTransaction: increasedRevenuePossibility,
+                ebNetToOrganizer: ebWeighted.netToOrganizer,
+                currentPlatformNetToOrganizer: ypWeighted.netToOrganizer,
+                targetNetToOrganizer: revenueHeadroom.targetNetToOrganizer,
+                ebFeesPerTransaction: ebWeighted.totalFees,
+                ypFeesPerTransaction: ypWeighted.totalFees,
+                ebConsumerPays: ebWeighted.totalConsumerPays,
+                ypConsumerPays: ypWeighted.totalConsumerPays,
+                averageTicketsPerTransaction: ypWeighted.avgQty
+            };
+        }
+
+        function getActiveTabSummary(summaryResults) {
+            const activeTab = document.querySelector('.tab.active');
+            const activeTabKey = activeTab?.dataset.tab || 'single';
+            const activeTabName = activeTab?.textContent.trim() || '1 Ticket Purchase';
+
+            return {
+                activeTabKey,
+                activeTabName,
+                results: summaryResults[activeTabKey] || summaryResults.single
+            };
+        }
+
+        function updateSavings(summaryResults) {
+            const ticketsPerMonth = parseFloat(inputs.ticketsPerMonth.value);
+            const resultsByTab = summaryResults || {
+                single: updateSingleTicket(),
+                average: updateAverageTicket(),
+                blended: updateBlended()
+            };
+            const { activeTabName, results } = getActiveTabSummary(resultsByTab);
+            const transactionsPerMonth = results.averageTicketsPerTransaction === 0
+                ? 0
+                : ticketsPerMonth / results.averageTicketsPerTransaction;
+
+            const perTransactionSavings = results.perTransactionSavings;
+            const monthlySavings = perTransactionSavings * transactionsPerMonth;
+            const annualSavings = monthlySavings * 12;
+            const annualTransactions = transactionsPerMonth * 12;
+            const increasedRevenuePossibility = Math.max(
+                0,
+                (results.currentPlatformNetToOrganizer ?? 0) - (results.ebNetToOrganizer ?? 0)
+            );
+            const monthlyRevenueOpportunity = increasedRevenuePossibility * transactionsPerMonth;
+            const annualRevenueOpportunity = monthlyRevenueOpportunity * 12;
+
+            document.getElementById('savings-tickets-display').textContent = ticketsPerMonth.toLocaleString();
+            document.getElementById('savings-per-transaction-label').textContent = `Per Transaction Savings (${activeTabName})`;
+            document.getElementById('savings-revenue-per-transaction-label').textContent = `Per Transaction Revenue Increase (${activeTabName})`;
+            document.getElementById('savings-per-ticket').textContent = formatPreciseCurrency(perTransactionSavings);
+            document.getElementById('savings-monthly').textContent = formatCurrencyWithCommas(monthlySavings);
+            document.getElementById('savings-annual').textContent = formatCurrencyWithCommas(annualSavings);
+            document.getElementById('savings-monthly-transactions').textContent = formatPreciseNumber(transactionsPerMonth) + ' transactions/month';
+            document.getElementById('savings-annual-tickets').textContent = formatPreciseNumber(annualTransactions) + ' transactions/year';
+            document.getElementById('savings-revenue-opportunity').textContent = formatPreciseCurrency(increasedRevenuePossibility);
+            document.getElementById('savings-monthly-revenue-opportunity').textContent = formatCurrencyWithCommas(monthlyRevenueOpportunity);
+            document.getElementById('savings-annual-revenue-opportunity').textContent = formatCurrencyWithCommas(annualRevenueOpportunity);
+            document.getElementById('savings-monthly-revenue-transactions').textContent = formatPreciseNumber(transactionsPerMonth) + ' transactions/month';
+            document.getElementById('savings-annual-revenue-transactions').textContent = formatPreciseNumber(annualTransactions) + ' transactions/year';
+        }
+
+        function recalculateAll() {
+            const summaryResults = {
+                single: updateSingleTicket(),
+                average: updateAverageTicket(),
+                blended: updateBlended()
+            };
+
+            updateSavings(summaryResults);
+        }
+
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', recalculateAll);
+        });
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                document.getElementById(tabName).classList.add('active');
+                recalculateAll();
+            });
+        });
+
+        recalculateAll();
+    </script>
+</body>
+</html>
